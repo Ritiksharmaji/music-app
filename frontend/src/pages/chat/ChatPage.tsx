@@ -1,6 +1,6 @@
 import Topbar from "@/components/Topbar";
 import { useChatStore } from "@/stores/useChatStore";
-import { useUser } from "@clerk/clerk-react";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useEffect } from "react";
 import UsersList from "./components/UsersList";
 import ChatHeader from "./components/ChatHeader";
@@ -17,7 +17,7 @@ const formatTime = (date: string) => {
 };
 
 const ChatPage = () => {
-	const { user } = useUser();
+	const { user } = useAuthStore();
 	const { messages, selectedUser, fetchUsers, fetchMessages } = useChatStore();
 
 	useEffect(() => {
@@ -25,10 +25,8 @@ const ChatPage = () => {
 	}, [fetchUsers, user]);
 
 	useEffect(() => {
-		if (selectedUser) fetchMessages(selectedUser.clerkId);
+		if (selectedUser) fetchMessages(selectedUser._id);
 	}, [selectedUser, fetchMessages]);
-
-	console.log({ messages });
 
 	return (
 		<main className='h-full rounded-lg bg-gradient-to-b from-zinc-800 to-zinc-900 overflow-hidden'>
@@ -50,13 +48,13 @@ const ChatPage = () => {
 										<div
 											key={message._id}
 											className={`flex items-start gap-3 ${
-												message.senderId === user?.id ? "flex-row-reverse" : ""
+												message.senderId === user?._id ? "flex-row-reverse" : ""
 											}`}
 										>
 											<Avatar className='size-8'>
 												<AvatarImage
 													src={
-														message.senderId === user?.id
+														message.senderId === user?._id
 															? user.imageUrl
 															: selectedUser.imageUrl
 													}
@@ -65,7 +63,7 @@ const ChatPage = () => {
 
 											<div
 												className={`rounded-lg p-3 max-w-[70%]
-													${message.senderId === user?.id ? "bg-green-500" : "bg-zinc-800"}
+													${message.senderId === user?._id ? "bg-green-500" : "bg-zinc-800"}
 												`}
 											>
 												<p className='text-sm'>{message.content}</p>

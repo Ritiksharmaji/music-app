@@ -11,5 +11,9 @@ export default defineConfig({
 	},
 	server: {
 		port: 3000,
+		// uploaded media urls are relative (/api/media/...), served by the backend
+		proxy: {
+			"/api": "http://localhost:5001",
+		},
 	},
 });

@@ -1,19 +1,6 @@
 import { Song } from "../models/song.model.js";
 import { Album } from "../models/album.model.js";
-import cloudinary from "../lib/cloudinary.js";
-
-// helper function for cloudinary uploads
-const uploadToCloudinary = async (file) => {
-	try {
-		const result = await cloudinary.uploader.upload(file.tempFilePath, {
-			resource_type: "auto",
-		});
-		return result.secure_url;
-	} catch (error) {
-		console.log("Error in uploadToCloudinary", error);
-		throw new Error("Error uploading to cloudinary");
-	}
-};
+import { uploadToS3, deleteFromS3 } from "../lib/s3.js";
 
 export const createSong = async (req, res, next) => {
 	try {
@@ -25,8 +12,8 @@ export const createSong = async (req, res, next) => {
 		const audioFile = req.files.audioFile;
 		const imageFile = req.files.imageFile;
 
-		const audioUrl = await uploadToCloudinary(audioFile);
-		const imageUrl = await uploadToCloudinary(imageFile);
+		const audioUrl = await uploadToS3(audioFile, "songs");
+		const imageUrl = await uploadToS3(imageFile, "images");
 
 		const song = new Song({
 			title,
@@ -66,6 +53,7 @@ export const deleteSong = async (req, res, next) => {
 		}
 
 		await Song.findByIdAndDelete(id);
+		await Promise.all([deleteFromS3(song.audioUrl), deleteFromS3(song.imageUrl)]);
 
 		res.status(200).json({ message: "Song deleted successfully" });
 	} catch (error) {
@@ -79,7 +67,7 @@ export const createAlbum = async (req, res, next) => {
 		const { title, artist, releaseYear } = req.body;
 		const { imageFile } = req.files;
 
-		const imageUrl = await uploadToCloudinary(imageFile);
+		const imageUrl = await uploadToS3(imageFile, "images");
 
 		const album = new Album({
 			title,
@@ -100,8 +88,13 @@ export const createAlbum = async (req, res, next) => {
 export const deleteAlbum = async (req, res, next) => {
 	try {
 		const { id } = req.params;
+		const songs = await Song.find({ albumId: id });
 		await Song.deleteMany({ albumId: id });
-		await Album.findByIdAndDelete(id);
+		const album = await Album.findByIdAndDelete(id);
+		await Promise.all([
+			deleteFromS3(album?.imageUrl),
+			...songs.flatMap((song) => [deleteFromS3(song.audioUrl), deleteFromS3(song.imageUrl)]),
+		]);
 		res.status(200).json({ message: "Album deleted successfully" });
 	} catch (error) {
 		console.log("Error in deleteAlbum", error);
