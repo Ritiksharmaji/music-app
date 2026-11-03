@@ -25,7 +25,7 @@ interface MusicStore {
 	deleteAlbum: (id: string) => Promise<void>;
 }
 
-export const useMusicStore = create<MusicStore>((set) => ({
+export const useMusicStore = create<MusicStore>((set, get) => ({
 	albums: [],
 	songs: [],
 	isLoading: false,
@@ -50,6 +50,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
 				songs: state.songs.filter((song) => song._id !== id),
 			}));
 			toast.success("Song deleted successfully");
+			get().fetchStats();
 		} catch (error: any) {
 			console.log("Error in deleteSong", error);
 			toast.error("Error deleting song");
@@ -69,6 +70,8 @@ export const useMusicStore = create<MusicStore>((set) => ({
 				),
 			}));
 			toast.success("Album deleted successfully");
+			get().fetchStats();
+			get().fetchSongs();
 		} catch (error: any) {
 			toast.error("Failed to delete album: " + error.message);
 		} finally {

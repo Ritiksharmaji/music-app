@@ -15,25 +15,41 @@ About This Course:
 -   📊 Aggregate data for the analytics page
 -   🚀 And a lot more...
 
+### Documentation
+
+-   📘 [system-flow.md](system-flow.md): step-by-step admin and user guide with screenshots (signing up, playing music, uploading songs)
+-   🏗️ [system-design.md](system-design.md): architecture, data model, API, key flows, security and scaling
+
+### What's different in this fork
+
+-   🔐 Email and password login (JWT + bcrypt) instead of Clerk
+-   ☁️ Uploads stored in a private **AWS S3** bucket (served through presigned URLs) instead of Cloudinary
+-   🇮🇳 Spotify-style category filters with full-length songs from YouTube: Bollywood, Hollywood, Punjabi, Bhojpuri, Haryanvi, Rajasthani, Telugu, Tamil, Kannada, Malayalam, Marathi, Gujarati, Bengali and Odia
+
 ### Setup .env file in _backend_ folder
 
 ```bash
-PORT=...
-MONGODB_URI=...
-ADMIN_EMAIL=...
-NODE_ENV=...
+PORT=5001
+MONGODB_URI=mongodb://127.0.0.1:27017/spotify-clone
+ADMIN_EMAIL=you@example.com
+NODE_ENV=development
 
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
-CLOUDINARY_CLOUD_NAME=...
+JWT_SECRET=...            # openssl rand -hex 32
 
+AWS_PROFILE=...           # AWS credentials profile with access to the bucket
+AWS_REGION=ap-south-1
+AWS_S3_BUCKET=...
 
-CLERK_PUBLISHABLE_KEY=...
-CLERK_SECRET_KEY=...
+YOUTUBE_API_KEY=...       # Google Cloud key with YouTube Data API v3 enabled
 ```
 
-### Setup .env file in _frontend_ folder
+The frontend needs no `.env` file.
+
+### Run locally
 
 ```bash
-VITE_CLERK_PUBLISHABLE_KEY=...
+npm install --prefix backend && npm run dev --prefix backend     # http://localhost:5001
+npm install --prefix frontend && npm run dev --prefix frontend   # http://localhost:3000
 ```
+
+See [system-flow.md](system-flow.md#part-0--run-the-app-locally) for details.

@@ -25,7 +25,8 @@ const loadYouTubeApi = () => {
 };
 
 // YouTube's terms require the embedded player to stay visible (at least 200x200),
-// so third-party songs play in this mini player above the playback bar.
+// so third-party songs play in this mini player above the playback bar (bottom-left,
+// over the playlists sidebar, so it never covers chat input or the main content).
 const YouTubePlayer = () => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const playerRef = useRef<any>(null);
@@ -94,9 +95,9 @@ const YouTubePlayer = () => {
 
 	return (
 		<div
-			className={`fixed right-4 bottom-28 z-50 overflow-hidden rounded-lg border border-zinc-800 bg-black shadow-2xl transition-all ${
+			className={`fixed left-4 bottom-28 z-50 overflow-hidden rounded-lg border border-zinc-800 bg-black shadow-2xl transition-all ${
 				youtubeId ? "" : "pointer-events-none invisible"
-			} ${minimized ? "w-[200px] h-[200px] opacity-90" : "w-[320px] h-[200px]"}`}
+			} ${minimized ? "w-[200px] h-[200px] opacity-90" : "w-[280px] h-[200px]"}`}
 		>
 			<div className='absolute top-0 inset-x-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent px-2 py-1 text-[11px] text-zinc-300'>
 				<span>Playing via YouTube</span>
