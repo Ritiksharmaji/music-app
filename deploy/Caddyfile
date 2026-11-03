@@ -1,0 +1,23 @@
+# Automatic HTTPS (Let's Encrypt) for all three subdomains; everything is served by
+# the same app container, so the web apps call /api on their own origin.
+
+# listeners: browse, play, chat
+music.onekampus.com {
+	encode gzip
+	# the dashboard lives on its own subdomain
+	redir /admin* https://music-admin.onekampus.com{uri}
+	reverse_proxy app:5001
+}
+
+# admin: Music Manager
+music-admin.onekampus.com {
+	encode gzip
+	redir / /admin
+	reverse_proxy app:5001
+}
+
+# API for the mobile app (REST, Socket.IO, media links, YouTube player page)
+music-api.onekampus.com {
+	encode gzip
+	reverse_proxy app:5001
+}

@@ -15,6 +15,12 @@ About This Course:
 -   📊 Aggregate data for the analytics page
 -   🚀 And a lot more...
 
+### Live
+
+-   🎧 App: https://music.onekampus.com
+-   🛠️ Admin: https://music-admin.onekampus.com
+-   ⚙️ API: https://music-api.onekampus.com. Deployed on AWS Lightsail; see [deploy/README.md](deploy/README.md).
+
 ### Documentation
 
 -   📘 [system-flow.md](system-flow.md): step-by-step admin and user guide with screenshots (signing up, playing music, uploading songs)

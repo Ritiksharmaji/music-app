@@ -8,6 +8,7 @@ import { createServer } from "http";
 import cron from "node-cron";
 
 import { initializeSocket } from "./lib/socket.js";
+import { CLIENT_URLS } from "./lib/clientUrls.js";
 import { warmCaches } from "./lib/catalog.js";
 
 import { connectDB } from "./lib/db.js";
@@ -31,7 +32,7 @@ initializeSocket(httpServer);
 
 app.use(
 	cors({
-		origin: "http://localhost:3000",
+		origin: CLIENT_URLS,
 		credentials: true,
 	})
 );

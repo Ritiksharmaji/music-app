@@ -5,7 +5,7 @@
 const DEV_HOST = 'localhost';
 
 // Production: the backend serves the API, sockets and static files from one origin.
-const PROD_ORIGIN = 'https://your-domain.com';
+const PROD_ORIGIN = 'https://music-api.onekampus.com';
 
 export const API_ORIGIN = __DEV__ ? `http://${DEV_HOST}:5001` : PROD_ORIGIN;
 export const API_URL = `${API_ORIGIN}/api`;

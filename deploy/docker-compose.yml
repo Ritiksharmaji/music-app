@@ -1,0 +1,34 @@
+# One small server: Caddy (HTTPS) -> app (API, sockets, web app) -> MongoDB.
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    env_file: .env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/spotify-clone
+    volumes:
+      - ./data/cache:/app/backend/cache # YouTube / Jamendo catalog cache (saves API quota)
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    # keep memory low on a 1 GB server
+    command: ["--wiredTigerCacheSizeGB", "0.25"]
+    volumes:
+      - ./data/mongo:/data/db
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./data/caddy:/data # certificates
+    depends_on:
+      - app
+    restart: unless-stopped

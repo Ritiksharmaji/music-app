@@ -1,10 +1,11 @@
 import { Server } from "socket.io";
 import { Message } from "../models/message.model.js";
+import { CLIENT_URLS } from "./clientUrls.js";
 
 export const initializeSocket = (server) => {
 	const io = new Server(server, {
 		cors: {
-			origin: "http://localhost:3000",
+			origin: CLIENT_URLS,
 			credentials: true,
 		},
 	});

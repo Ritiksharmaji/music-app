@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/home/HomePage";
 import AuthPage from "./pages/auth/AuthPage";
 import MainLayout from "./layout/MainLayout";
@@ -8,6 +8,7 @@ import AdminPage from "./pages/admin/AdminPage";
 
 import { Toaster } from "react-hot-toast";
 import NotFoundPage from "./pages/404/NotFoundPage";
+import { isAdminHost } from "./lib/hosts";
 
 function App() {
 	return (
@@ -18,7 +19,8 @@ function App() {
 				<Route path='/admin' element={<AdminPage />} />
 
 				<Route element={<MainLayout />}>
-					<Route path='/' element={<HomePage />} />
+					{/* the admin subdomain opens straight to the dashboard */}
+					<Route path='/' element={isAdminHost ? <Navigate to='/admin' replace /> : <HomePage />} />
 					<Route path='/chat' element={<ChatPage />} />
 					<Route path='/albums/:albumId' element={<AlbumPage />} />
 					<Route path='*' element={<NotFoundPage />} />

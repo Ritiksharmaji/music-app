@@ -1,8 +1,8 @@
 import { LayoutDashboardIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 import SignInOAuthButtons from "./SignInOAuthButtons";
 import UserMenu from "./UserMenu";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { ADMIN_URL } from "@/lib/hosts";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./ui/button";
 
@@ -21,10 +21,11 @@ const Topbar = () => {
 			</div>
 			<div className='flex items-center gap-4'>
 				{isAdmin && (
-					<Link to={"/admin"} className={cn(buttonVariants({ variant: "outline" }))}>
+					// a full link when the dashboard is on its own subdomain
+					<a href={ADMIN_URL} className={cn(buttonVariants({ variant: "outline" }))}>
 						<LayoutDashboardIcon className='size-4  mr-2' />
 						Admin Dashboard
-					</Link>
+					</a>
 				)}
 
 				{user ? <UserMenu /> : <SignInOAuthButtons />}

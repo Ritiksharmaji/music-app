@@ -333,9 +333,14 @@ Minimum IAM permissions for the backend: `s3:PutObject`, `s3:GetObject`, `s3:Del
 | Socket.IO state | In-memory, so one backend instance only. To run several instances, add the Socket.IO Redis adapter and move presence/activity into Redis. |
 | Catalog cache | Per instance on local disk; for several instances use Redis or S3 for the cache file |
 
-### Production deployment outline
+### Production deployment (live)
 
-1. `npm run build --prefix frontend`. Then `NODE_ENV=production npm start --prefix backend` serves the API, Socket.IO and the built frontend from one origin.
-2. Run on EC2, Lightsail, ECS or Elastic Beanstalk with an **IAM role** for S3 instead of a profile.
-3. Use **MongoDB Atlas** (or DocumentDB) instead of local MongoDB.
-4. Put it behind HTTPS (ALB or Nginx), set the CORS origin through an env var, and set strong `JWT_SECRET` and `ADMIN_EMAIL` values.
+The app runs on one AWS Lightsail server (1 GB, Mumbai, about $7/month) with Docker Compose: **Caddy** (automatic HTTPS) → **app** (API + Socket.IO + built web app) → **MongoDB**. Uploads stay in the private S3 bucket, accessed by an IAM user limited to that bucket.
+
+| URL | Serves |
+|---|---|
+| https://music.onekampus.com | User app |
+| https://music-admin.onekampus.com | Admin dashboard (`/admin`) |
+| https://music-api.onekampus.com | API for the mobile app |
+
+All three hit the same container, so the web apps call `/api` on their own origin and no CORS is needed. `CLIENT_URLS` lists the allowed web origins for development and other setups. Details, commands and costs: [`deploy/README.md`](deploy/README.md).

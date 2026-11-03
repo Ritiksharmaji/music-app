@@ -6,10 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SongsTabContent from "./components/SongsTabContent";
 import AlbumsTabContent from "./components/AlbumsTabContent";
 import { useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import { useMusicStore } from "@/stores/useMusicStore";
 
 const AdminPage = () => {
-	const { isAdmin, isLoading } = useAuthStore();
+	const { user, isAdmin, isLoading } = useAuthStore();
 
 	const { fetchAlbums, fetchSongs, fetchStats } = useMusicStore();
 
@@ -19,7 +20,13 @@ const AdminPage = () => {
 		fetchStats();
 	}, [fetchAlbums, fetchSongs, fetchStats]);
 
-	if (!isAdmin && !isLoading) return <div>Unauthorized</div>;
+	if (!user) return <Navigate to='/login' replace />;
+	if (!isAdmin && !isLoading)
+		return (
+			<div className='min-h-screen bg-zinc-900 text-zinc-300 flex items-center justify-center p-8 text-center'>
+				Only the admin account can open the Music Manager.
+			</div>
+		);
 
 	return (
 		<div
