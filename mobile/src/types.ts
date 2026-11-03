@@ -7,8 +7,8 @@ export interface Song {
   audioUrl: string;
   duration: number;
   createdAt?: string;
-  // set for catalog tracks that play through YouTube's embedded player
-  source?: 'youtube';
+  // set for catalog tracks: YouTube plays in its embedded player, Jamendo is a plain MP3 stream
+  source?: 'youtube' | 'jamendo';
   youtubeId?: string;
   channel?: string;
 }
@@ -26,6 +26,7 @@ export interface DiscoverRow {
   id: string;
   name: string;
   group: string;
+  source: 'youtube' | 'jamendo';
   songs: Song[];
 }
 

@@ -1,6 +1,6 @@
 # System Design
 
-A Spotify-style music app: users browse and play music, chat in real time and see what friends are listening to; an admin uploads songs and albums. Music comes from two sources — **our own uploads** (stored privately in AWS S3) and a **YouTube catalog** of Indian and international songs, both played full length.
+A Spotify-style music app: users browse and play music, chat in real time and see what friends are listening to; an admin uploads songs and albums. Music comes from three sources, each labelled on its category row: **our own uploads** (`Ours`, stored privately in AWS S3), a **YouTube catalog** of Indian and international hits (`YouTube`), and free Creative Commons music from **Jamendo** (`Jamendo`). All play full length.
 
 For the step-by-step admin/user guide with screenshots see [system-flow.md](system-flow.md).
 
@@ -25,7 +25,7 @@ flowchart LR
         REST[REST API /api/*]
         Auth[JWT auth middleware]
         Media["/api/media/* → presigned URL redirect"]
-        Discover[YouTube catalog service<br/>24h disk cache]
+        Discover[Catalog service<br/>YouTube + Jamendo<br/>24h disk cache]
         Socket[Socket.IO<br/>chat · presence · activity]
     end
 
@@ -55,7 +55,7 @@ flowchart LR
 | Auth | Email + password, `bcryptjs` hashing, `jsonwebtoken` (JWT, 7-day expiry) |
 | Database | MongoDB (local via Homebrew, or MongoDB Atlas) |
 | File storage | AWS S3 (private bucket) via `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner` |
-| Third-party music | YouTube Data API v3 (catalog) + YouTube IFrame Player API (playback) |
+| Third-party music | YouTube Data API v3 (catalog) + YouTube IFrame Player API (playback); Jamendo API v3 (Creative Commons MP3 streams) |
 
 ---
 
@@ -82,7 +82,10 @@ flowchart LR
 | `controller/admin.controller.js` | Create/delete songs and albums; uploads to and deletes from S3 |
 | `lib/s3.js` | `uploadToS3`, `deleteFromS3`, `getMediaUrl` (presigned GET, 1 h) |
 | `routes/media.route.js` | `GET /api/media/*` → 302 redirect to a presigned S3 URL |
-| `lib/youtube.js` | Builds the 14-category catalog from the YouTube Data API, filters, cleans titles, caches to `cache/youtube-catalog.json` |
+| `lib/catalog.js` | Routes each category to its provider and tags it with `source` (`youtube` / `jamendo`); providers without an API key are skipped |
+| `lib/cachedCatalog.js` | Shared 24 h disk cache (`cache/<provider>-catalog.json`) with stale-on-error |
+| `lib/youtube.js` | 14 YouTube categories: search, filter, clean titles |
+| `lib/jamendo.js` | 10 Jamendo categories (Indian Fusion, Lo-fi, Chill, Workout, Acoustic, Instrumental, Piano, Electronic, Hip-Hop, Rock) |
 | `lib/socket.js` | Presence (`user_connected`, `users_online`), activity (`update_activity`), chat (`send_message`) |
 
 ---
@@ -128,7 +131,7 @@ erDiagram
     USER ||--o{ MESSAGE : receives
 ```
 
-YouTube catalog songs are **not** stored in MongoDB. They live in the disk cache and are returned in the same shape as `Song`, plus `source: "youtube"`, `youtubeId`, `channel` and `externalUrl`. `_id` is `yt-<videoId>` so it never collides with Mongo IDs.
+Catalog songs are **not** stored in MongoDB. They live in the disk cache and are returned in the same shape as `Song`, plus `source` (`"youtube"` or `"jamendo"`) and `externalUrl`. YouTube songs add `youtubeId` and `channel`, and Jamendo songs add `license` (their Creative Commons licence URL). IDs are `yt-<videoId>` / `jm-<trackId>`, so they never collide with Mongo IDs. Discover rows carry `source` as well; the uploads row is labelled `ours` by the clients.
 
 ---
 
@@ -248,13 +251,19 @@ flowchart TD
 - The cache stores the raw YouTube title, so title-parsing rules can change without refetching.
 - Adding a language means adding one line to `CATEGORIES` in `backend/src/lib/youtube.js`.
 
+### 5.4b Jamendo catalog
+
+- `GET https://api.jamendo.com/v3.0/tracks/?client_id=…&order=popularity_total&limit=50&audioformat=mp32` with each category's `tags` / `fuzzytags` / `vocalinstrumental` filter: one request per category, cached for 24 h like YouTube.
+- Tracks are direct MP3 URLs, so they play in our own audio players (web `<audio>`, mobile `react-native-track-player`). That means **full length in the background with lock-screen controls**, unlike YouTube.
+- Licence: free for non-commercial use with a client ID; a commercial app needs a Jamendo licence. Artist names are always shown, as the Creative Commons licences require.
+
 ### 5.5 Unified playback
 
-`usePlayerStore` holds the queue and current song for both sources. Two players react to it:
+`usePlayerStore` holds the queue and current song for every source. Two players react to it:
 
 | Current song | `AudioPlayer` | `YouTubePlayer` |
 |---|---|---|
-| Upload (`source` undefined) | sets `src`, plays/pauses | pauses, mini player hidden |
+| Upload (`source` undefined) or Jamendo (`source: "jamendo"`) | sets `src`, plays/pauses | pauses, mini player hidden |
 | YouTube (`source: "youtube"`) | pauses | `loadVideoById` / play / pause, mini player visible |
 
 `PlaybackControls` polls `playerEngine` every 500 ms for time and duration and routes seek and volume to whichever player is active. When a song ends, either player calls `playNext()`. If a YouTube video errors (removed or region-blocked), it is skipped.
@@ -305,6 +314,7 @@ The server keeps `userId → socketId` and `userId → activity` maps in memory.
 | `AWS_REGION` | `ap-south-1` | S3 region |
 | `AWS_S3_BUCKET` | `spotify-clone-media-<account-id>` | Private media bucket |
 | `YOUTUBE_API_KEY` | `AIza…` | YouTube Data API v3 key (restrict it to that API) |
+| `JAMENDO_CLIENT_ID` | `a1b2c3d4` | Jamendo API client ID from devportal.jamendo.com; Jamendo rows are hidden without it |
 
 The frontend needs no env vars: in development it calls `http://localhost:5001`, in production the same origin.
 

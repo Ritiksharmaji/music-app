@@ -2,17 +2,19 @@ import { Song } from "@/types";
 import SectionGridSkeleton from "./SectionGridSkeleton";
 import { Button } from "@/components/ui/button";
 import PlayButton from "./PlayButton";
+import SourceLabel, { CatalogSource } from "@/components/SourceLabel";
 
 type SectionGridProps = {
 	title: string;
 	songs: Song[];
 	isLoading: boolean;
 	subtitle?: string;
+	source?: CatalogSource;
 	// show only the first `limit` songs and a "Show all" link
 	limit?: number;
 	onShowAll?: () => void;
 };
-const SectionGrid = ({ songs, title, isLoading, subtitle, limit, onShowAll }: SectionGridProps) => {
+const SectionGrid = ({ songs, title, isLoading, subtitle, source, limit, onShowAll }: SectionGridProps) => {
 	if (isLoading) return <SectionGridSkeleton />;
 
 	const visibleSongs = limit ? songs.slice(0, limit) : songs;
@@ -21,7 +23,10 @@ const SectionGrid = ({ songs, title, isLoading, subtitle, limit, onShowAll }: Se
 		<div className='mb-8'>
 			<div className='flex items-center justify-between mb-4'>
 				<div>
-					<h2 className='text-xl sm:text-2xl font-bold'>{title}</h2>
+					<h2 className='text-xl sm:text-2xl font-bold flex items-center gap-2'>
+						{title}
+						{source && <SourceLabel source={source} />}
+					</h2>
 					{subtitle && <p className='text-sm text-zinc-400'>{subtitle}</p>}
 				</div>
 				{onShowAll && (

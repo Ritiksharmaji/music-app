@@ -3,11 +3,8 @@
 // Quota: each category costs ~101 units (search + videos.list) of the free 10,000/day,
 // so the catalog is cached on disk for 24h and survives restarts.
 
-import fs from "fs";
-import path from "path";
+import { createCachedCatalog } from "./cachedCatalog.js";
 
-const CACHE_TTL = 24 * 60 * 60 * 1000;
-const CACHE_FILE = path.join(process.cwd(), "cache", "youtube-catalog.json");
 const API = "https://www.googleapis.com/youtube/v3";
 
 export const CATEGORIES = [
@@ -26,23 +23,6 @@ export const CATEGORIES = [
 	{ id: "bengali", name: "Bengali", group: "West & East Indian", query: "bengali song" },
 	{ id: "odia", name: "Odia", group: "West & East Indian", query: "odia song" },
 ];
-
-// categoryId -> { songs, fetchedAt }
-const cache = new Map(Object.entries(readDiskCache()));
-const inFlight = new Map();
-
-function readDiskCache() {
-	try {
-		return JSON.parse(fs.readFileSync(CACHE_FILE, "utf8"));
-	} catch {
-		return {};
-	}
-}
-
-const writeDiskCache = () => {
-	fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
-	fs.writeFileSync(CACHE_FILE, JSON.stringify(Object.fromEntries(cache)));
-};
 
 const youtube = async (endpoint, params) => {
 	const query = new URLSearchParams({ ...params, key: process.env.YOUTUBE_API_KEY });
@@ -146,51 +126,15 @@ const withDisplayTitle = (songs) =>
 		return { ...song, title, artist: subtitle };
 	});
 
-export const getCategorySongs = async (categoryId) => {
-	const songs = await getRawCategorySongs(categoryId);
-	return songs && withDisplayTitle(songs);
-};
+export const isEnabled = () => !!process.env.YOUTUBE_API_KEY;
 
-const getRawCategorySongs = async (categoryId) => {
-	const category = CATEGORIES.find((c) => c.id === categoryId);
-	if (!category) return null;
+const catalog = createCachedCatalog({
+	name: "YouTube",
+	file: "youtube-catalog.json",
+	categories: CATEGORIES,
+	load: loadCategory,
+	present: withDisplayTitle,
+});
 
-	const cached = cache.get(categoryId);
-	if (cached && Date.now() - cached.fetchedAt < CACHE_TTL) return cached.songs;
-
-	if (!inFlight.has(categoryId)) {
-		inFlight.set(
-			categoryId,
-			loadCategory(category)
-				.then((songs) => {
-					cache.set(categoryId, { songs, fetchedAt: Date.now() });
-					writeDiskCache();
-					return songs;
-				})
-				.finally(() => inFlight.delete(categoryId))
-		);
-	}
-
-	try {
-		return await inFlight.get(categoryId);
-	} catch (error) {
-		// quota exhausted or network error: serve stale data if we have it
-		if (cached) return cached.songs;
-		throw error;
-	}
-};
-
-export const listCategories = () => CATEGORIES.map(({ id, name, group }) => ({ id, name, group }));
-
-// fill the cache in the background so the first visitor doesn't wait
-export const warmCache = async () => {
-	if (!process.env.YOUTUBE_API_KEY) return console.log("Discover: YOUTUBE_API_KEY not set, skipping");
-	for (const category of CATEGORIES) {
-		try {
-			await getRawCategorySongs(category.id);
-		} catch (error) {
-			console.log(`Discover: could not load ${category.id} -`, error.message);
-		}
-	}
-	console.log("Discover: catalog ready");
-};
+export const getCategorySongs = catalog.getCategorySongs;
+export const warmCache = catalog.warm;

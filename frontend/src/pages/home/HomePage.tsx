@@ -64,6 +64,7 @@ const HomePage = () => {
 		<SectionGrid
 			title='Uploaded by us'
 			subtitle='Full-length songs from our own library'
+			source='ours'
 			songs={librarySongs}
 			isLoading={isLoadingLibrary}
 			limit={limit}
@@ -80,6 +81,7 @@ const HomePage = () => {
 				<SectionGrid
 					title={row?.name || "Songs"}
 					subtitle={`${row?.group ?? ""} · Full songs`}
+					source={row?.source}
 					songs={categorySongs[active] || row?.songs || []}
 					isLoading={loadingCategory === active && !row}
 				/>
@@ -106,6 +108,7 @@ const HomePage = () => {
 							)}
 							<SectionGrid
 								title={row.name}
+								source={row.source}
 								songs={row.songs}
 								isLoading={false}
 								limit={ROW_LIMIT}

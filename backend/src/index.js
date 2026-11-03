@@ -8,7 +8,7 @@ import { createServer } from "http";
 import cron from "node-cron";
 
 import { initializeSocket } from "./lib/socket.js";
-import { warmCache } from "./lib/youtube.js";
+import { warmCaches } from "./lib/catalog.js";
 
 import { connectDB } from "./lib/db.js";
 import userRoutes from "./routes/user.route.js";
@@ -88,5 +88,5 @@ app.use((err, req, res, next) => {
 httpServer.listen(PORT, () => {
 	console.log("Server is running on port " + PORT);
 	connectDB();
-	warmCache();
+	warmCaches();
 });

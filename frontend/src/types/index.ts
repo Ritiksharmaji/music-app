@@ -8,8 +8,8 @@ export interface Song {
 	duration: number;
 	createdAt: string;
 	updatedAt: string;
-	// set for third-party tracks, which play through YouTube's embedded player
-	source?: "youtube";
+	// set for third-party tracks: YouTube plays in its embedded player, Jamendo is a plain MP3 stream
+	source?: "youtube" | "jamendo";
 	youtubeId?: string;
 	channel?: string;
 	externalUrl?: string;
@@ -19,6 +19,7 @@ export interface DiscoverRow {
 	id: string;
 	name: string;
 	group: string;
+	source: "youtube" | "jamendo";
 	songs: Song[];
 }
 

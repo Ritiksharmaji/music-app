@@ -10,6 +10,8 @@ The mobile app (iOS + Android) for the music platform. It is built with the **Re
 | Library | Albums created by the admin |
 | Our uploads (S3) | `react-native-track-player`: full length, background audio, lock-screen controls |
 | Catalog songs (YouTube) | Our own player page (`/api/discover/player`) in a visible WebView, as YouTube's terms require |
+| Catalog songs (Jamendo) | `react-native-track-player`, like our uploads: background and lock screen |
+| Source labels | Each category title shows OURS / YOUTUBE / JAMENDO |
 | Now Playing | Full-screen player with seek / previous / next |
 | Messages | Online status, what friends are playing, real-time chat (Socket.IO) |
 
@@ -73,5 +75,5 @@ src/
 
 ## Known limits
 
-- YouTube songs stop when the app goes to the background. YouTube's terms forbid background or audio-only playback, and the stores reject apps that do it. Uploaded songs keep playing.
+- YouTube songs stop when the app goes to the background. YouTube's terms forbid background or audio-only playback, and the stores reject apps that do it. Uploaded and Jamendo songs keep playing.
 - The YouTube player must stay visible (at least 200 px), so it docks above the mini player while a catalog song plays.

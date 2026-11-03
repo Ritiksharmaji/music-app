@@ -1,4 +1,4 @@
-import { CATEGORIES, getCategorySongs, listCategories } from "../lib/youtube.js";
+import { getCategorySongs, listCategories } from "../lib/catalog.js";
 
 export const getCategories = (req, res) => {
 	res.json(listCategories());
@@ -8,16 +8,16 @@ export const getCategories = (req, res) => {
 export const getDiscoverHome = async (req, res, next) => {
 	try {
 		const limit = Number(req.query.limit) || 12;
+		const categories = listCategories();
 		const rows = [];
 
-		// a few at a time to stay under the iTunes rate limit on a cold cache
-		for (let i = 0; i < CATEGORIES.length; i += 3) {
-			const batch = CATEGORIES.slice(i, i + 3);
+		// a few at a time so a cold cache doesn't burst the providers' rate limits
+		for (let i = 0; i < categories.length; i += 3) {
+			const batch = categories.slice(i, i + 3);
 			const results = await Promise.allSettled(batch.map((c) => getCategorySongs(c.id)));
 			results.forEach((result, j) => {
-				const { id, name, group } = batch[j];
-				if (result.status === "fulfilled") rows.push({ id, name, group, songs: result.value.slice(0, limit) });
-				else console.log(`Discover: ${id} unavailable -`, result.reason.message);
+				if (result.status === "fulfilled") rows.push({ ...batch[j], songs: result.value.slice(0, limit) });
+				else console.log(`Discover: ${batch[j].id} unavailable -`, result.reason.message);
 			});
 		}
 
@@ -29,11 +29,11 @@ export const getDiscoverHome = async (req, res, next) => {
 
 export const getDiscoverCategory = async (req, res, next) => {
 	try {
-		const songs = await getCategorySongs(req.params.categoryId);
-		if (!songs) return res.status(404).json({ message: "Category not found" });
+		const category = listCategories().find((c) => c.id === req.params.categoryId);
+		if (!category) return res.status(404).json({ message: "Category not found" });
 
-		const { id, name, group } = CATEGORIES.find((c) => c.id === req.params.categoryId);
-		res.json({ id, name, group, songs });
+		const songs = await getCategorySongs(category.id);
+		res.json({ ...category, songs });
 	} catch (error) {
 		next(error);
 	}

@@ -25,6 +25,9 @@ About This Course:
 -   🔐 Email and password login (JWT + bcrypt) instead of Clerk
 -   ☁️ Uploads stored in a private **AWS S3** bucket (served through presigned URLs) instead of Cloudinary
 -   🇮🇳 Spotify-style category filters with full-length songs from YouTube: Bollywood, Hollywood, Punjabi, Bhojpuri, Haryanvi, Rajasthani, Telugu, Tamil, Kannada, Malayalam, Marathi, Gujarati, Bengali and Odia
+-   🎵 Free Creative Commons music from Jamendo (Indian Fusion, Lo-fi, Chill, Workout…) that also plays with the phone screen off
+-   🏷️ Every category is labelled with its source: OURS, YOUTUBE or JAMENDO
+-   📱 React Native mobile app for iOS and Android in [`mobile/`](mobile/README.md)
 
 ### Setup .env file in _backend_ folder
 
@@ -41,6 +44,7 @@ AWS_REGION=ap-south-1
 AWS_S3_BUCKET=...
 
 YOUTUBE_API_KEY=...       # Google Cloud key with YouTube Data API v3 enabled
+JAMENDO_CLIENT_ID=...     # optional: free Creative Commons catalog (devportal.jamendo.com)
 ```
 
 The frontend needs no `.env` file.

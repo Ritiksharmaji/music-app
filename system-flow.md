@@ -12,7 +12,10 @@ Songs come from two sources:
 | Source | Shown as | Plays | Managed by |
 |---|---|---|---|
 | **Our uploads** | "Uploaded by us" row / chip | Full length from our private **AWS S3** bucket | Admin (this guide, Part 2) |
-| **YouTube catalog** | 14 category rows (Bollywood, Hollywood, Punjabi, Bhojpuri, Telugu, …) | Full length through YouTube's official embedded player | Automatic — refreshed every 24h from the YouTube Data API |
+| **YouTube catalog** | 14 category rows (Bollywood, Hollywood, Punjabi, Bhojpuri, Telugu, …) | Full length through YouTube's official embedded player (pauses when the phone screen turns off) | Automatic — refreshed every 24h from the YouTube Data API |
+| **Jamendo** | 10 category rows (Indian Fusion, Lo-fi, Chill, Workout, …) | Full length as plain audio, so it also keeps playing with the phone screen off | Automatic — refreshed every 24h from the Jamendo API |
+
+Each category title shows a small label for its source: **OURS** (green), **YOUTUBE** (red) or **JAMENDO** (amber).
 
 For architecture details see [system-design.md](system-design.md).
 
@@ -29,6 +32,7 @@ For architecture details see [system-design.md](system-design.md).
    - `JWT_SECRET` — any long random string (`openssl rand -hex 32`)
    - `AWS_PROFILE`, `AWS_REGION`, `AWS_S3_BUCKET` — the S3 bucket for uploads
    - `YOUTUBE_API_KEY` — a Google Cloud API key with **YouTube Data API v3** enabled
+   - `JAMENDO_CLIENT_ID` — optional; a free client ID from https://devportal.jamendo.com (adds the Jamendo rows)
 3. Install and start both apps:
    ```bash
    npm install --prefix backend && npm run dev --prefix backend
