@@ -3,12 +3,15 @@ import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Song } from "@/types";
 import { Pause, Play } from "lucide-react";
 
-const PlayButton = ({ song }: { song: Song }) => {
-	const { currentSong, isPlaying, setCurrentSong, togglePlay } = usePlayerStore();
+// pass `queue` to make next/previous move through the row the song was played from
+const PlayButton = ({ song, queue }: { song: Song; queue?: Song[] }) => {
+	const { currentSong, isPlaying, setCurrentSong, togglePlay, playAlbum } = usePlayerStore();
 	const isCurrentSong = currentSong?._id === song._id;
 
-	const handlePlay = () => {
+	const handlePlay = (e: React.MouseEvent) => {
+		e.stopPropagation();
 		if (isCurrentSong) togglePlay();
+		else if (queue) playAlbum(queue, queue.findIndex((s) => s._id === song._id));
 		else setCurrentSong(song);
 	};
 

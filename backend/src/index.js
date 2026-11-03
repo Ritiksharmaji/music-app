@@ -8,6 +8,7 @@ import { createServer } from "http";
 import cron from "node-cron";
 
 import { initializeSocket } from "./lib/socket.js";
+import { warmCache } from "./lib/itunes.js";
 
 import { connectDB } from "./lib/db.js";
 import userRoutes from "./routes/user.route.js";
@@ -17,6 +18,7 @@ import songRoutes from "./routes/song.route.js";
 import albumRoutes from "./routes/album.route.js";
 import statRoutes from "./routes/stat.route.js";
 import mediaRoutes from "./routes/media.route.js";
+import discoverRoutes from "./routes/discover.route.js";
 
 dotenv.config();
 
@@ -69,6 +71,7 @@ app.use("/api/songs", songRoutes);
 app.use("/api/albums", albumRoutes);
 app.use("/api/stats", statRoutes);
 app.use("/api/media", mediaRoutes);
+app.use("/api/discover", discoverRoutes);
 
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "../frontend/dist")));
@@ -85,4 +88,5 @@ app.use((err, req, res, next) => {
 httpServer.listen(PORT, () => {
 	console.log("Server is running on port " + PORT);
 	connectDB();
+	warmCache();
 });

@@ -11,6 +11,16 @@ export const getAllSongs = async (req, res, next) => {
 	}
 };
 
+// all of our own (uploaded) songs, public for the home page
+export const getLibrarySongs = async (req, res, next) => {
+	try {
+		const songs = await Song.find().sort({ createdAt: -1 });
+		res.json(songs);
+	} catch (error) {
+		next(error);
+	}
+};
+
 export const getFeaturedSongs = async (req, res, next) => {
 	try {
 		// fetch 6 random songs using mongodb's aggregation pipeline

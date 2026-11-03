@@ -8,6 +8,17 @@ export interface Song {
 	duration: number;
 	createdAt: string;
 	updatedAt: string;
+	// set for third-party (iTunes) tracks, which are 30s previews
+	source?: "itunes";
+	fullDuration?: number;
+	externalUrl?: string;
+}
+
+export interface DiscoverRow {
+	id: string;
+	name: string;
+	group: string;
+	songs: Song[];
 }
 
 export interface Album {

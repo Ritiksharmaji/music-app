@@ -3,6 +3,7 @@ import { Slider } from "@/components/ui/slider";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import PreviewBadge from "@/components/PreviewBadge";
 
 const formatTime = (seconds: number) => {
 	const minutes = Math.floor(seconds / 60);
@@ -62,12 +63,25 @@ export const PlaybackControls = () => {
 								className='w-14 h-14 object-cover rounded-md'
 							/>
 							<div className='flex-1 min-w-0'>
-								<div className='font-medium truncate hover:underline cursor-pointer'>
-									{currentSong.title}
+								<div className='flex items-center gap-2'>
+									<span className='font-medium truncate hover:underline cursor-pointer'>
+										{currentSong.title}
+									</span>
+									{currentSong.source && <PreviewBadge />}
 								</div>
 								<div className='text-sm text-zinc-400 truncate hover:underline cursor-pointer'>
 									{currentSong.artist}
 								</div>
+								{currentSong.externalUrl && (
+									<a
+										href={currentSong.externalUrl}
+										target='_blank'
+										rel='noreferrer'
+										className='text-xs text-emerald-400 hover:underline'
+									>
+										Full song on Apple Music
+									</a>
+								)}
 							</div>
 						</>
 					)}
