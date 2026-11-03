@@ -1,4 +1,4 @@
-import { CATEGORIES, getCategorySongs, listCategories } from "../lib/itunes.js";
+import { CATEGORIES, getCategorySongs, listCategories } from "../lib/youtube.js";
 
 export const getCategories = (req, res) => {
 	res.json(listCategories());

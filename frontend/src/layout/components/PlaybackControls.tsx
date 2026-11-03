@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import PreviewBadge from "@/components/PreviewBadge";
+import { useEffect, useState } from "react";
+import SourceBadge from "@/components/SourceBadge";
+import { playerEngine } from "@/lib/playerEngine";
 
 const formatTime = (seconds: number) => {
 	const minutes = Math.floor(seconds / 60);
@@ -17,37 +18,21 @@ export const PlaybackControls = () => {
 	const [volume, setVolume] = useState(75);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
-	const audioRef = useRef<HTMLAudioElement | null>(null);
-
+	// poll the active engine (our <audio> or the YouTube player) for progress
 	useEffect(() => {
-		audioRef.current = document.querySelector("audio");
-
-		const audio = audioRef.current;
-		if (!audio) return;
-
-		const updateTime = () => setCurrentTime(audio.currentTime);
-		const updateDuration = () => setDuration(audio.duration);
-
-		audio.addEventListener("timeupdate", updateTime);
-		audio.addEventListener("loadedmetadata", updateDuration);
-
-		const handleEnded = () => {
-			usePlayerStore.setState({ isPlaying: false });
-		};
-
-		audio.addEventListener("ended", handleEnded);
-
-		return () => {
-			audio.removeEventListener("timeupdate", updateTime);
-			audio.removeEventListener("loadedmetadata", updateDuration);
-			audio.removeEventListener("ended", handleEnded);
-		};
+		setCurrentTime(0);
+		setDuration(currentSong?.duration || 0);
+		const interval = setInterval(() => {
+			setCurrentTime(playerEngine.getCurrentTime());
+			const engineDuration = playerEngine.getDuration();
+			if (engineDuration) setDuration(engineDuration);
+		}, 500);
+		return () => clearInterval(interval);
 	}, [currentSong]);
 
 	const handleSeek = (value: number[]) => {
-		if (audioRef.current) {
-			audioRef.current.currentTime = value[0];
-		}
+		playerEngine.seek(value[0]);
+		setCurrentTime(value[0]);
 	};
 
 	return (
@@ -67,21 +52,12 @@ export const PlaybackControls = () => {
 									<span className='font-medium truncate hover:underline cursor-pointer'>
 										{currentSong.title}
 									</span>
-									{currentSong.source && <PreviewBadge />}
+									{currentSong.source && <SourceBadge />}
 								</div>
 								<div className='text-sm text-zinc-400 truncate hover:underline cursor-pointer'>
 									{currentSong.artist}
 								</div>
-								{currentSong.externalUrl && (
-									<a
-										href={currentSong.externalUrl}
-										target='_blank'
-										rel='noreferrer'
-										className='text-xs text-emerald-400 hover:underline'
-									>
-										Full song on Apple Music
-									</a>
-								)}
+
 							</div>
 						</>
 					)}
@@ -170,9 +146,7 @@ export const PlaybackControls = () => {
 							className='w-24 hover:cursor-grab active:cursor-grabbing'
 							onValueChange={(value) => {
 								setVolume(value[0]);
-								if (audioRef.current) {
-									audioRef.current.volume = value[0] / 100;
-								}
+								playerEngine.setVolume(value[0]);
 							}}
 						/>
 					</div>

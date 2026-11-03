@@ -79,7 +79,7 @@ const HomePage = () => {
 			return (
 				<SectionGrid
 					title={row?.name || "Songs"}
-					subtitle={`${row?.group ?? ""} · 30-second previews from iTunes`}
+					subtitle={`${row?.group ?? ""} · Full songs via YouTube`}
 					songs={categorySongs[active] || row?.songs || []}
 					isLoading={loadingCategory === active && !row}
 				/>

@@ -8,9 +8,10 @@ export interface Song {
 	duration: number;
 	createdAt: string;
 	updatedAt: string;
-	// set for third-party (iTunes) tracks, which are 30s previews
-	source?: "itunes";
-	fullDuration?: number;
+	// set for third-party tracks, which play through YouTube's embedded player
+	source?: "youtube";
+	youtubeId?: string;
+	channel?: string;
 	externalUrl?: string;
 }
 
