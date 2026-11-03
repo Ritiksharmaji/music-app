@@ -3,7 +3,6 @@ import { Slider } from "@/components/ui/slider";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1 } from "lucide-react";
 import { useEffect, useState } from "react";
-import SourceBadge from "@/components/SourceBadge";
 import { playerEngine } from "@/lib/playerEngine";
 
 const formatTime = (seconds: number) => {
@@ -48,11 +47,8 @@ export const PlaybackControls = () => {
 								className='w-14 h-14 object-cover rounded-md'
 							/>
 							<div className='flex-1 min-w-0'>
-								<div className='flex items-center gap-2'>
-									<span className='font-medium truncate hover:underline cursor-pointer'>
-										{currentSong.title}
-									</span>
-									{currentSong.source && <SourceBadge />}
+								<div className='font-medium truncate hover:underline cursor-pointer'>
+									{currentSong.title}
 								</div>
 								<div className='text-sm text-zinc-400 truncate hover:underline cursor-pointer'>
 									{currentSong.artist}

@@ -2,7 +2,6 @@ import { Song } from "@/types";
 import SectionGridSkeleton from "./SectionGridSkeleton";
 import { Button } from "@/components/ui/button";
 import PlayButton from "./PlayButton";
-import SourceBadge from "@/components/SourceBadge";
 
 type SectionGridProps = {
 	title: string;
@@ -48,7 +47,6 @@ const SectionGrid = ({ songs, title, isLoading, subtitle, limit, onShowAll }: Se
 									group-hover:scale-105'
 								/>
 							</div>
-							{song.source && <SourceBadge className='absolute top-2 left-2' />}
 							<PlayButton song={song} queue={songs} />
 						</div>
 						<h3 className='font-medium mb-1 truncate'>{song.title}</h3>

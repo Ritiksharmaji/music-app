@@ -12,7 +12,7 @@ Songs come from two sources:
 | Source | Shown as | Plays | Managed by |
 |---|---|---|---|
 | **Our uploads** | "Uploaded by us" row / chip | Full length from our private **AWS S3** bucket | Admin (this guide, Part 2) |
-| **YouTube catalog** | 14 category rows (Bollywood, Hollywood, Punjabi, Bhojpuri, Telugu, …) with a red **YOUTUBE** badge | Full length through YouTube's official embedded player | Automatic — refreshed every 24h from the YouTube Data API |
+| **YouTube catalog** | 14 category rows (Bollywood, Hollywood, Punjabi, Bhojpuri, Telugu, …) | Full length through YouTube's official embedded player | Automatic — refreshed every 24h from the YouTube Data API |
 
 For architecture details see [system-design.md](system-design.md).
 
@@ -97,7 +97,7 @@ Click any chip (e.g. **Bhojpuri**) or **Show all** on a row to see the full cate
 ### Step 6 — Play a song
 
 Hover a card and click the green **▶** button.
-- **YouTube songs** play full length in the **mini player** (bottom-left, "Playing via YouTube"). YouTube requires this player to stay visible; use the ⤡ icon to shrink it.
+- **YouTube songs** play full length in the small video **mini player** at the bottom left. YouTube requires this player to stay visible; use the ⤡ icon in its corner to shrink it.
 - **Our uploads** play directly in the bottom bar (no video).
 - The bottom bar works for both: play / pause, previous / next (moves through the row you played from), seek and volume. When a song ends the next one starts automatically.
 

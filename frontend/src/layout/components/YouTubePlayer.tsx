@@ -99,16 +99,13 @@ const YouTubePlayer = () => {
 				youtubeId ? "" : "pointer-events-none invisible"
 			} ${minimized ? "w-[200px] h-[200px] opacity-90" : "w-[280px] h-[200px]"}`}
 		>
-			<div className='absolute top-0 inset-x-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent px-2 py-1 text-[11px] text-zinc-300'>
-				<span>Playing via YouTube</span>
-				<button
-					onClick={() => setMinimized((m) => !m)}
-					className='rounded p-0.5 hover:bg-white/10'
-					title={minimized ? "Expand" : "Shrink"}
-				>
-					{minimized ? <Maximize2 className='size-3' /> : <Minimize2 className='size-3' />}
-				</button>
-			</div>
+			<button
+				onClick={() => setMinimized((m) => !m)}
+				className='absolute top-1 right-1 z-10 rounded bg-black/60 p-1 text-zinc-300 hover:bg-black/80'
+				title={minimized ? "Expand" : "Shrink"}
+			>
+				{minimized ? <Maximize2 className='size-3' /> : <Minimize2 className='size-3' />}
+			</button>
 			<div ref={containerRef} />
 		</div>
 	);
